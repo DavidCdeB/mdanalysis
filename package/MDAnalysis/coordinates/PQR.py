@@ -297,7 +297,7 @@ class PQRWriter(base.WriterBase):
             total_charge = 0.0
         else:
             total_charge = atoms.total_charge()
-        elementos = [guess_atom_element(i) for i in attrs['names']]
+        elements = [guess_atom_element(i) for i in attrs['names']]
         if missing_topology:
             warnings.warn(
                 "Supplied AtomGroup was missing the following attributes: "
@@ -315,12 +315,12 @@ class PQRWriter(base.WriterBase):
                 5))
             pqrfile.write(self.fmt_remark.format(
                 "total charge: {0:+8.4f} e".format(total_charge), 6))
-            print ("attrs['names'] = ", attrs['names'])
+
             # Atom descriptions and coords
             for atom_index, (pos, name, resname, chainid, resid, charge, radius, element) in enumerate(zip(
                         coordinates, attrs['names'], attrs['resnames'], attrs['chainids'],
                         attrs['resids'], attrs['charges'], attrs['radii'], 
-                        elementos), start=1):
+                        elements), start=1):
                 # pad so that only 4-letter atoms are left-aligned
                 name = " " + name if len(name) < 4 else name
 
