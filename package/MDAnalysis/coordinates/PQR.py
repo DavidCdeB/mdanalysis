@@ -328,7 +328,10 @@ class PQRWriter(base.WriterBase):
                 # Avoid 'serial' numbers greater than 99,999 according to PDB format:
                 atom_index_truncated = util.ltruncate_int(atom_index, 5)
 
+                # Avoid 'resid' numbers greater than 9,999 according to PDB format:
+                resid_truncated = util.ltruncate_int(resid, 4)
+
                 pqrfile.write(self.fmt_ATOM.format(
                     serial=atom_index_truncated, name=name, resname=resname,
-                    chainid=chainid, resid=resid, pos=pos, charge=charge,
+                    chainid=chainid, resid=resid_truncated, pos=pos, charge=charge,
                     radius=radius, element=element))
