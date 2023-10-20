@@ -112,6 +112,7 @@ import warnings
 from ..lib import util
 from . import base
 
+from ..topology.core import guess_atom_element
 
 class PQRReader(base.SingleFrameReaderBase):
     """Read a PQR_ file into MDAnalysis.
@@ -196,9 +197,9 @@ class PQRWriter(base.WriterBase):
     units = {'time': None, 'length': 'Angstrom'}
 
     # serial, atomName, residueName, chainID, residueNumber, XYZ, charge, radius
-    fmt_ATOM = ("ATOM {serial:6d} {name:<4}  {resname:<3} {chainid:1.1}"
-                " {resid:4d}   {pos[0]:-8.3f} {pos[1]:-8.3f}"
-                " {pos[2]:-8.3f} {charge:-7.4f} {radius:6.4f}\n")
+    fmt_ATOM = ("ATOM  {serial:5d} {name:<4s} {resname:<4s}"
+                " {resid:4d}    {pos[0]:8.3f}{pos[1]:8.3f}"
+                "{pos[2]:8.3f} {charge:-7.4f}  {radius:6.4f} {element:>7s}\n")
     fmt_remark = "REMARK   {0} {1}\n"
 
     def __init__(self, filename, convert_units=True, **kwargs):
@@ -296,7 +297,7 @@ class PQRWriter(base.WriterBase):
             total_charge = 0.0
         else:
             total_charge = atoms.total_charge()
-
+        elementos = [guess_atom_element(i) for i in attrs['names']]
         if missing_topology:
             warnings.warn(
                 "Supplied AtomGroup was missing the following attributes: "
@@ -314,15 +315,16 @@ class PQRWriter(base.WriterBase):
                 5))
             pqrfile.write(self.fmt_remark.format(
                 "total charge: {0:+8.4f} e".format(total_charge), 6))
-
+            print ("attrs['names'] = ", attrs['names'])
             # Atom descriptions and coords
-            for atom_index, (pos, name, resname, chainid, resid, charge, radius) in enumerate(zip(
+            for atom_index, (pos, name, resname, chainid, resid, charge, radius, element) in enumerate(zip(
                         coordinates, attrs['names'], attrs['resnames'], attrs['chainids'],
-                        attrs['resids'], attrs['charges'], attrs['radii']), start=1):
+                        attrs['resids'], attrs['charges'], attrs['radii'], 
+                        elementos), start=1):
                 # pad so that only 4-letter atoms are left-aligned
                 name = " " + name if len(name) < 4 else name
 
                 pqrfile.write(self.fmt_ATOM.format(
                     serial=atom_index, name=name, resname=resname,
                     chainid=chainid, resid=resid, pos=pos, charge=charge,
-                    radius=radius))
+                    radius=radius, element=element))
