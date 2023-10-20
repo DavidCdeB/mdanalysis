@@ -112,6 +112,7 @@ import warnings
 from ..lib import util
 from . import base
 
+from ..lib import util
 from ..topology.core import guess_atom_element
 
 class PQRReader(base.SingleFrameReaderBase):
@@ -324,7 +325,10 @@ class PQRWriter(base.WriterBase):
                 # pad so that only 4-letter atoms are left-aligned
                 name = " " + name if len(name) < 4 else name
 
+                # Avoid 'serial' numbers greater than 99,999 according to PDB format:
+                atom_index_truncated = util.ltruncate_int(atom_index, 5)
+
                 pqrfile.write(self.fmt_ATOM.format(
-                    serial=atom_index, name=name, resname=resname,
+                    serial=atom_index_truncated, name=name, resname=resname,
                     chainid=chainid, resid=resid, pos=pos, charge=charge,
                     radius=radius, element=element))
