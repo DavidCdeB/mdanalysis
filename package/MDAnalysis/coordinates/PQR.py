@@ -197,7 +197,8 @@ class PQRWriter(base.WriterBase):
     format = 'PQR'
     units = {'time': None, 'length': 'Angstrom'}
 
-    # serial, atomName, residueName, chainID, residueNumber, XYZ, charge, radius
+    # serial, atomName, residueName, chainID (often not in TRR/TPR), 
+    # residueNumber, XYZ, charge, radius
     fmt_ATOM = ("ATOM  {serial:5d} {name:<4s} {resname:<4s}"
                 " {resid:4d}    {pos[0]:8.3f}{pos[1]:8.3f}"
                 "{pos[2]:8.3f} {charge:-7.4f}  {radius:6.4f} {element:>7s}\n")
@@ -335,3 +336,6 @@ class PQRWriter(base.WriterBase):
                     serial=atom_index_truncated, name=name, resname=resname,
                     chainid=chainid, resid=resid_truncated, pos=pos, charge=charge,
                     radius=radius, element=element))
+        # Adding "END"
+        with util.openany(self.filename, 'a') as pqrfile:
+                pqrfile.write("END")
